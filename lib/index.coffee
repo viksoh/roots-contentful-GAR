@@ -14,15 +14,21 @@ errors =
   sys_conflict: 'One of your content types has `sys` as a field. This is
   reserved for storing Contentful system metadata, please rename this field to
   a different value.'
+  no_datatypes: 'please specify the content types to be synced from the preview api'
+
 
 hosts =
   develop: 'preview.contentful.com'
   production: 'cdn.contentful.com'
 
+
 module.exports = (opts) ->
   # throw error if missing required config
-  if not (opts.access_token && opts.space_id)
+  if not (opts.access_token && opts.space_id &&opts.preview_token)
     throw new Error errors.no_token
+
+  if opts.preview && not opts.preview_datatypes
+    throw new Error errors.no_datatypes
 
   # setup contentful api client
   client = contentful.createClient
@@ -32,7 +38,8 @@ module.exports = (opts) ->
     accessToken: opts.access_token
     space: opts.space_id
 
-  previewClient = contentful.createClient
+
+  preview_client = contentful.createClient
     host:
       hosts.develop
     accessToken: opts.preview_token
@@ -111,7 +118,7 @@ module.exports = (opts) ->
     fetch_content = (type) ->
       if opts.preview && type.id in opts.preview_datatypes
         W(
-          previewclient.entries(
+          preview_client.entries(
             _.merge(type.filters, content_type: type.id, include: 10)
           )
         )
@@ -121,7 +128,6 @@ module.exports = (opts) ->
             _.merge(type.filters, content_type: type.id, include: 10)
           )
         )
-      
 
     ###*
      * Formats raw response from Contentful

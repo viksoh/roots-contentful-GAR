@@ -61,22 +61,6 @@ A `contentful` view helper object will be passed into every view containing your
         p= markdown(post.body)
 ```
 
-Note: for the above `markdown` function to parse your `post.body`, you need to install a markdown parser for roots to work with. Using [marked](https://www.npmjs.com/package/marked) as an example, do the following:
-
-- `npm install marked --save`
-
-And then in `app.coffee`:
-
-```coffee
-contentful = require 'roots-contentful'
-marked     = require 'marked'
-
-locals:
-  markdown: marked
-```
-
-See the [roots documentation](http://roots.cx/docs/configuration) for more details.
-
 Note: if you have [Links](https://www.contentful.com/developers/docs/concepts/links/) in your content more than 10 levels deep (the max for the `include` parameter), then unresolved links can be returned.
 
 #### Single Entry Views
@@ -104,8 +88,6 @@ And can be accessed in your view like this:
 ```jade
   h2= entry.title
   p= markdown(entry.body)
-  if entry.image
-    img(src!= asset(entry.image)
 ```
 
 ### Configuration Options
