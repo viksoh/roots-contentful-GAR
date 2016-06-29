@@ -28,9 +28,14 @@ module.exports = (opts) ->
   client = contentful.createClient
     host:
       hosts[process.env.CONTENTFUL_ENV] ||
-      (hosts.develop if opts.preview)   ||
       hosts.production
     accessToken: opts.access_token
+    space: opts.space_id
+
+  previewClient = contentful.createClient
+    host:
+      hosts.develop
+    accessToken: opts.preview_token
     space: opts.space_id
 
   class RootsContentful
@@ -104,11 +109,19 @@ module.exports = (opts) ->
     ###
 
     fetch_content = (type) ->
-      W(
-        client.entries(
-          _.merge(type.filters, content_type: type.id, include: 10)
+      if opts.preview && type.id in opts.preview_datatypes
+        W(
+          previewclient.entries(
+            _.merge(type.filters, content_type: type.id, include: 10)
+          )
         )
-      )
+      else
+        W(
+          client.entries(
+            _.merge(type.filters, content_type: type.id, include: 10)
+          )
+        )
+      
 
     ###*
      * Formats raw response from Contentful
